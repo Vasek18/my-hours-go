@@ -1,0 +1,34 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/vasek18/my-hours-frontend
+  tag: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+# In-cluster host:port of the backend API. Empty defaults to the backend
+# subchart's own name/port, computed from the same `global.backend` values
+# the backend subchart itself uses — see templates/_helpers.tpl's
+# "frontend.backendFullname". This guarantees the two can never diverge.
+apiUpstream: ""
+
+# Must match the backend subchart's values when installed standalone
+# without the umbrella (the umbrella's top-level `global:` key is
+# automatically shared with both subcharts when installed together).
+global:
+  backend:
+    nameOverride: ""
+    fullnameOverride: ""
+    port: 8080
+
+service:
+  port: 80
+
+resources:
+  requests:
+    cpu: 25m
+    memory: 32Mi
+  limits:
+    cpu: 150m
+    memory: 64Mi

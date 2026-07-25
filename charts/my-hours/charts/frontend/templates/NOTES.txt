@@ -1,0 +1,2 @@
+Frontend "{{ include "frontend.fullname" . }}" deployed.
+In-cluster address: {{ include "frontend.fullname" . }}:{{ .Values.service.port }}

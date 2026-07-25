@@ -1,0 +1,39 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/vasek18/my-hours-backend
+  tag: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+env:
+  appEnv: production
+  # Must be set to your real public URL — used to build password-reset and
+  # email-change confirmation links. The chart fails to render if left empty.
+  appUrl: ""
+  redisAddr: redis:6379
+
+# Name of a pre-existing Secret (created outside this chart) with the keys
+# named below. Required — the chart fails to render without it.
+existingSecret: ""
+secretKeys:
+  databaseUrl: DATABASE_URL
+  sessionSecret: SESSION_SECRET
+
+# Shared with the frontend subchart: the frontend's default API_UPSTREAM
+# (<fullname>:<port>) is computed from these same values, so overriding the
+# backend's name/port here keeps the frontend's default in sync automatically.
+global:
+  backend:
+    nameOverride: ""
+    fullnameOverride: ""
+    port: 8080
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 128Mi
