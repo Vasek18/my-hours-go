@@ -7,7 +7,7 @@ appVersion: "0.1.0"
 dependencies:
   - name: backend
     version: 0.1.0
-    repository: file://../charts/backend
+    repository: file://charts/backend
   - name: frontend
     version: 0.1.0
-    repository: file://../charts/frontend
+    repository: file://charts/frontend
