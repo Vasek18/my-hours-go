@@ -1,6 +1,6 @@
 # Pinned tool versions (run via `go run` so no global installs are needed).
 GOLANGCI_VERSION := v2.5.0
-GOVULNCHECK_VERSION := v1.1.4
+GOVULNCHECK_VERSION := v1.6.0
 
 GOLANGCI := go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANGCI_VERSION)
 GOVULNCHECK := go run golang.org/x/vuln/cmd/govulncheck@$(GOVULNCHECK_VERSION)
