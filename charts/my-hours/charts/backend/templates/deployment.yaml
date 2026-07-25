@@ -1,6 +1,9 @@
 {{- if not .Values.existingSecret }}
 {{- fail "backend.existingSecret must be set to the name of a Secret containing DATABASE_URL and SESSION_SECRET keys" }}
 {{- end }}
+{{- if not .Values.env.appUrl }}
+{{- fail "backend.env.appUrl must be set to your real public URL" }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -17,6 +20,10 @@ spec:
       labels:
         {{- include "backend.selectorLabels" . | nindent 8 }}
     spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       securityContext:
         runAsNonRoot: true
         runAsUser: 65532
@@ -28,7 +35,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 8080
+              containerPort: {{ .Values.global.backend.port }}
               protocol: TCP
           env:
             - name: APP_ENV
@@ -47,17 +54,21 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.existingSecret }}
                   key: {{ .Values.secretKeys.sessionSecret }}
+          startupProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            failureThreshold: 30
+            periodSeconds: 5
           readinessProbe:
             httpGet:
               path: /api/health
               port: http
-            initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /api/health
               port: http
-            initialDelaySeconds: 10
             periodSeconds: 20
           securityContext:
             readOnlyRootFilesystem: true

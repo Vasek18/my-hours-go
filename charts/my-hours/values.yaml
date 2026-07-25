@@ -1,13 +1,20 @@
+global:
+  backend:
+    nameOverride: ""
+    fullnameOverride: ""
+    port: 8080
+
 backend:
   image:
     repository: ghcr.io/vasek18/my-hours-backend
     tag: ""
   replicaCount: 1
+  imagePullSecrets: []
   env:
     appEnv: production
-    appUrl: https://your-domain.example
+    appUrl: ""
     redisAddr: redis:6379
-  existingSecret: my-hours-backend-secret
+  existingSecret: ""
   secretKeys:
     databaseUrl: DATABASE_URL
     sessionSecret: SESSION_SECRET
@@ -24,6 +31,7 @@ frontend:
     repository: ghcr.io/vasek18/my-hours-frontend
     tag: ""
   replicaCount: 1
+  imagePullSecrets: []
   apiUpstream: ""
   resources:
     requests:

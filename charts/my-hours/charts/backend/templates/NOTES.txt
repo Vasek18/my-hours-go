@@ -1,2 +1,2 @@
 Backend "{{ include "backend.fullname" . }}" deployed.
-In-cluster address: {{ include "backend.fullname" . }}:{{ .Values.service.port }}
+In-cluster address: {{ include "backend.fullname" . }}:{{ .Values.global.backend.port }}

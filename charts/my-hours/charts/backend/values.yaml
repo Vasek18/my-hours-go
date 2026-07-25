@@ -5,9 +5,13 @@ image:
   tag: ""
   pullPolicy: IfNotPresent
 
+imagePullSecrets: []
+
 env:
   appEnv: production
-  appUrl: https://your-domain.example
+  # Must be set to your real public URL — used to build password-reset and
+  # email-change confirmation links. The chart fails to render if left empty.
+  appUrl: ""
   redisAddr: redis:6379
 
 # Name of a pre-existing Secret (created outside this chart) with the keys
@@ -17,8 +21,14 @@ secretKeys:
   databaseUrl: DATABASE_URL
   sessionSecret: SESSION_SECRET
 
-service:
-  port: 8080
+# Shared with the frontend subchart: the frontend's default API_UPSTREAM
+# (<fullname>:<port>) is computed from these same values, so overriding the
+# backend's name/port here keeps the frontend's default in sync automatically.
+global:
+  backend:
+    nameOverride: ""
+    fullnameOverride: ""
+    port: 8080
 
 resources:
   requests:

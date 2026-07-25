@@ -14,6 +14,10 @@ spec:
       labels:
         {{- include "frontend.selectorLabels" . | nindent 8 }}
     spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: frontend
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -26,7 +30,7 @@ spec:
             - name: PORT
               value: "80"
             - name: API_UPSTREAM
-              value: {{ .Values.apiUpstream | default (printf "%s-backend:8080" .Release.Name) | quote }}
+              value: {{ .Values.apiUpstream | default (printf "%s:%v" (include "frontend.backendFullname" .) .Values.global.backend.port) | quote }}
           readinessProbe:
             httpGet:
               path: /
