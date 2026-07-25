@@ -1,0 +1,16 @@
+# Development image: Vite dev server with HMR. Source is bind-mounted by compose.
+FROM node:24.14.1-alpine
+
+WORKDIR /app
+
+# Activate the pinned pnpm via corepack — no global installs.
+RUN corepack enable && corepack prepare pnpm@10.34.4 --activate
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile
+
+COPY . .
+
+EXPOSE 5173
+
+CMD ["pnpm", "dev"]

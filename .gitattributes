@@ -1,0 +1,12 @@
+# Normalize line endings so linters/formatters behave the same on every OS.
+* text=auto eol=lf
+
+# Keep Go sources LF so gofmt/gosec don't trip over CRLF on Windows clones.
+*.go text eol=lf
+go.mod text eol=lf
+go.sum text eol=lf
+
+# Lockfiles are generated; collapse diffs and mark as such.
+pnpm-lock.yaml -diff linguist-generated
+go.sum -diff
+mise.lock -diff

@@ -1,0 +1,39 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":semanticCommits", ":dependencyDashboard"],
+  "labels": ["dependencies"],
+  "schedule": ["before 6am on the first day of the month"],
+  "postUpdateOptions": ["gomodTidy"],
+  "packageRules": [
+    {
+      "description": "Group Go module minor & patch updates",
+      "matchManagers": ["gomod"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "go modules minor & patch"
+    },
+    {
+      "description": "Keep the Go version aligned across go.mod and the Dockerfile golang base image",
+      "matchPackageNames": ["go", "toolchain", "golang"],
+      "groupName": "go version"
+    },
+    {
+      "description": "Group npm/pnpm minor & patch updates",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "npm minor & patch"
+    },
+    {
+      "description": "Group the JS toolchain pinned by mise",
+      "matchManagers": ["mise"],
+      "groupName": "mise toolchain"
+    },
+    {
+      "description": "Group container base image updates",
+      "matchManagers": ["dockerfile"],
+      "groupName": "docker base images"
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "labels": ["security"]
+  }
+}

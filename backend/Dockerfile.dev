@@ -1,0 +1,17 @@
+# Development image: hot reload via air. Source is bind-mounted by docker-compose.
+FROM golang:1.25.11-alpine3.22
+
+WORKDIR /app
+
+# air for live reload
+RUN go install github.com/air-verse/air@v1.65.3
+
+# Cache module downloads
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+EXPOSE 8080
+
+CMD ["air", "-c", ".air.toml"]

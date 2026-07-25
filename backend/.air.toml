@@ -1,0 +1,16 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  cmd = "go build -o ./tmp/server ./cmd/server"
+  bin = "./tmp/server"
+  include_ext = ["go", "sql"]
+  exclude_dir = ["tmp"]
+  delay = 200
+  # Poll for changes: fsnotify events don't reliably cross bind mounts on
+  # macOS/Windows Docker, so polling keeps hot reload working everywhere.
+  poll = true
+  poll_interval = 500
+
+[misc]
+  clean_on_exit = true

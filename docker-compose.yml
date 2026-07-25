@@ -1,0 +1,70 @@
+# Local development stack. Run with: `cp .env.example .env && docker compose up --build`
+# Open the app at http://localhost:${WEB_PORT:-5173}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-my_hours}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-my_hours}
+      POSTGRES_DB: ${POSTGRES_DB:-my_hours}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-my_hours} -d ${POSTGRES_DB:-my_hours}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    environment:
+      APP_PORT: ${APP_PORT:-8080}
+      DATABASE_URL: ${DATABASE_URL:-postgres://my_hours:my_hours@postgres:5432/my_hours?sslmode=disable}
+      REDIS_ADDR: ${REDIS_ADDR:-redis:6379}
+      SESSION_SECRET: ${SESSION_SECRET:-change-me-in-production-please-32b}
+      APP_ENV: ${APP_ENV:-dev}
+      APP_URL: ${APP_URL:-http://localhost:5173}
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    volumes:
+      # Mount source for hot reload (air). Anonymous volume keeps container's build cache.
+      - ./backend:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    environment:
+      # Vite proxies /api to the backend service on the compose network.
+      VITE_API_PROXY_TARGET: http://backend:8080
+    ports:
+      - "${WEB_PORT:-5173}:5173"
+    volumes:
+      - ./frontend:/app
+      # Keep container's node_modules (don't shadow with host's, which may be empty/arch-mismatched)
+      - /app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

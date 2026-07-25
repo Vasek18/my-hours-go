@@ -1,0 +1,33 @@
+version: "2"
+
+linters:
+  enable:
+    - errcheck # unhandled errors
+    - govet # suspicious constructs
+    - staticcheck # advanced static analysis
+    - unused # unused code
+    - gosec # security issues (SQLi, weak crypto, hardcoded creds, ...)
+  settings:
+    errcheck:
+      exclude-functions:
+        - fmt.Fprint
+        - fmt.Fprintf
+        - fmt.Fprintln
+        - (*os.File).Close
+    gosec:
+      excludes:
+        - G104 # duplicate of errcheck for unhandled errors (e.g. deferred Close)
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - errcheck
+          - gosec
+
+formatters:
+  enable:
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/Vasek18/my_hours

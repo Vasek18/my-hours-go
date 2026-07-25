@@ -1,0 +1,8 @@
+# Supply-chain hardening for pnpm.
+#
+# minimumReleaseAge: require a package version to be at least this many minutes
+#   old before pnpm installs it — a 48h cool-down lets compromised releases get
+#   yanked before they reach us.
+# blockExoticSubdeps: reject git/url/tarball deps anywhere in the tree.
+minimumReleaseAge: 2880
+blockExoticSubdeps: true

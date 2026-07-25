@@ -1,0 +1,8 @@
+# Pin the JS toolchain with cryptographic hash verification (mise.lock).
+# The Go toolchain is pinned separately in backend/go.mod (go + toolchain).
+[settings]
+lockfile = true
+
+[tools]
+node = "24.14.1"
+pnpm = "10.34.4"
