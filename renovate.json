@@ -4,6 +4,7 @@
   "labels": ["dependencies"],
   "schedule": ["before 6am on the first day of the month"],
   "postUpdateOptions": ["gomodTidy"],
+  "minimumReleaseAge": "2 days",
   "packageRules": [
     {
       "description": "Group Go module minor & patch updates",
