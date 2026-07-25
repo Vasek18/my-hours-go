@@ -1,0 +1,21 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/vasek18/my-hours-frontend
+  tag: ""
+  pullPolicy: IfNotPresent
+
+# In-cluster host:port of the backend API. Empty defaults to
+# "<release-name>-backend:8080" (the backend subchart's default Service name).
+apiUpstream: ""
+
+service:
+  port: 80
+
+resources:
+  requests:
+    cpu: 25m
+    memory: 32Mi
+  limits:
+    cpu: 150m
+    memory: 64Mi
