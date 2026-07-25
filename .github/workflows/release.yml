@@ -118,6 +118,12 @@ jobs:
           BRANCH="chart-bump/${VERSION}"
           git checkout -b "$BRANCH"
           git add charts/my-hours/Chart.yaml charts/my-hours/charts/backend/Chart.yaml charts/my-hours/charts/frontend/Chart.yaml
+
+          if git diff --cached --quiet; then
+            echo "Chart is already at version ${VERSION}, nothing to bump"
+            exit 0
+          fi
+
           git commit -m "chore: bump chart version to ${VERSION}"
           git push --force origin "$BRANCH"
 
