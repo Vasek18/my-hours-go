@@ -76,11 +76,16 @@ charts/
   - `API_UPSTREAM`: defaults to `{{ .Release.Name }}-backend:8080` (in-cluster DNS name of the
     backend subchart's Service), overridable via values for non-standard release names/namespaces.
 - **Probes**: readiness and liveness both `GET /` on the container port.
-- **securityContext**: `runAsNonRoot: true` (nginx alpine image supports running as non-root),
-  `readOnlyRootFilesystem: false` — the nginx entrypoint renders `${PORT}`/`${API_UPSTREAM}` via
-  envsubst into `/etc/nginx/conf.d/default.conf` and needs to write PID/cache files at startup, so
-  the root filesystem cannot be fully read-only. `allowPrivilegeEscalation: false`, drop `ALL`
-  capabilities still apply.
+- **securityContext**: correction from the originally approved design — `runAsNonRoot: true` is
+  **not** used here. The stock `nginx:1.27-alpine` image's master process binds the privileged
+  port `80` directly (no setuid step of its own under Kubernetes' `runAsUser`), which requires
+  either root or the `CAP_NET_BIND_SERVICE` capability; forcing non-root without that capability
+  would crash-loop the pod. So the frontend container runs as the image's default (root) user,
+  keeps capabilities untouched (no `drop: ["ALL"]`), and only sets `allowPrivilegeEscalation:
+  false` and `readOnlyRootFilesystem: false` (nginx's entrypoint renders `${PORT}`/`${API_UPSTREAM}`
+  via envsubst into `/etc/nginx/conf.d/default.conf` and needs to write PID/cache files at
+  startup). The backend keeps its full non-root + read-only + drop-all hardening since its
+  distroless image was built for exactly that.
 - **Service**: ClusterIP, port 80 → container port 80.
 - **Configurable**: `replicaCount` (default 1), `resources` (small sane defaults).
 
