@@ -18,7 +18,7 @@ type Config struct {
 // Load reads configuration from the environment, applying sensible local defaults.
 func Load() Config {
 	cfg := Config{
-		// Railway injects PORT; fall back to APP_PORT, then a local default.
+		// Some platforms inject PORT; fall back to APP_PORT, then a local default.
 		AppPort:       env("APP_PORT", env("PORT", "8080")),
 		AppEnv:        env("APP_ENV", "dev"),
 		AppURL:        env("APP_URL", "http://localhost:5173"),

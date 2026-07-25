@@ -170,16 +170,18 @@ What's enforced:
   blocked by default; ESLint + strict TypeScript; `mise`-pinned toolchain.
 - **Repo:** Renovate dependency updates, signed/conventional commits, `CODEOWNERS`.
 
-## Deploying to Railway
+## Deploying
 
-Deploy two services from this repo, plus the managed add-ons:
+Deploy two services from this repo, plus managed (or self-hosted) Postgres and Redis:
 
 - **API service** — build `backend/Dockerfile`. Set `DATABASE_URL`, `REDIS_ADDR`, `SESSION_SECRET`,
   `APP_ENV=production`, `APP_URL` (your web app's public URL).
 - **Web service** — build `frontend/Dockerfile` (nginx). Set `API_UPSTREAM` to the API service's
-  private hostname (e.g. `api.railway.internal:8080`) and `PORT` to the port Railway assigns. nginx
+  private hostname (e.g. `my-hours-backend:8080`) and `PORT` to the port your platform assigns. nginx
   serves the SPA and reverse-proxies `/api` to that upstream.
-- **Postgres** and **Redis** — Railway add-ons; wire their connection strings into the API service.
+- **Postgres** and **Redis** — wire their connection strings into the API service.
+
+For Kubernetes via ArgoCD, see the Helm charts under `charts/`.
 
 In production set `APP_ENV=production` so the session cookie is sent with `Secure` and a strict
 `SameSite`. A future mobile client can call the API service's public URL directly (token auth would
