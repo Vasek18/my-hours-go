@@ -90,8 +90,17 @@ jobs:
       contents: write
       pull-requests: write
     steps:
+      - name: Generate app token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.AV_HELPER_BOT_APP_ID }}
+          private-key: ${{ secrets.AV_HELPER_BOT_PRIVATE_KEY }}
+
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Compute chart version
         id: version
@@ -100,33 +109,49 @@ jobs:
           echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
 
       - name: Bump Chart.yaml version/appVersion
+        id: bump
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           FILES="charts/my-hours/Chart.yaml charts/my-hours/charts/backend/Chart.yaml charts/my-hours/charts/frontend/Chart.yaml"
           sed -i "s/^version: .*/version: ${VERSION}/" $FILES
           sed -i "s/^appVersion: .*/appVersion: \"${VERSION}\"/" $FILES
 
-      - name: Open chart version bump PR
-        env:
-          GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ steps.version.outputs.version }}
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          BRANCH="chart-bump/${VERSION}"
-          git checkout -b "$BRANCH"
-          git add charts/my-hours/Chart.yaml charts/my-hours/charts/backend/Chart.yaml charts/my-hours/charts/frontend/Chart.yaml
-
+          git add $FILES
           if git diff --cached --quiet; then
             echo "Chart is already at version ${VERSION}, nothing to bump"
-            exit 0
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Configure git identity as the app bot
+        if: steps.bump.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+        run: |
+          BOT_USER_ID=$(gh api "/users/${APP_SLUG}[bot]" --jq .id)
+          git config user.name "${APP_SLUG}[bot]"
+          git config user.email "${BOT_USER_ID}+${APP_SLUG}[bot]@users.noreply.github.com"
+
+      - name: Commit and push chart bump
+        if: steps.bump.outputs.changed == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          BRANCH="chart-bump/${VERSION}"
+          git checkout -b "$BRANCH"
           git commit -m "chore: bump chart version to ${VERSION}"
           git push --force origin "$BRANCH"
 
+      - name: Open chart version bump PR
+        if: steps.bump.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          BRANCH="chart-bump/${VERSION}"
           if gh pr view "$BRANCH" >/dev/null 2>&1; then
             echo "PR for $BRANCH already exists, skipping create"
           else
@@ -136,3 +161,13 @@ jobs:
               --base main \
               --head "$BRANCH"
           fi
+
+      - name: Approve and auto-merge PR
+        if: steps.bump.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          BRANCH="chart-bump/${VERSION}"
+          gh pr review "$BRANCH" --approve
+          gh pr merge "$BRANCH" --auto --squash --delete-branch
