@@ -2,8 +2,8 @@ apiVersion: v2
 name: my-hours
 description: My Hours — Go API + Vue SPA umbrella Helm chart
 type: application
-version: 0.1.0
-appVersion: "0.1.0"
+version: 0.1.2
+appVersion: "0.1.2"
 dependencies:
   - name: backend
     version: "*"
