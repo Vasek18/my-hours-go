@@ -14,15 +14,10 @@ env:
   appUrl: ""
   redisAddr: redis:6379
 
-# Name of a pre-existing Secret (created outside this chart) with the keys
-# named below, used for both DATABASE_URL and SESSION_SECRET. Fine to leave
-# empty if databaseSecretName and sessionSecretName are both set instead —
-# the chart fails to render if either env var ends up with no secret name.
-existingSecret: ""
-# Override the secret name for just one of the two env vars — e.g. point
-# DATABASE_URL at a database operator's own generated credentials Secret
-# while SESSION_SECRET comes from a separately-managed one. Empty falls back
-# to existingSecret.
+# Names of pre-existing Secrets (created outside this chart) holding each
+# env var's value — e.g. point databaseSecretName at a database operator's
+# own generated credentials Secret, and sessionSecretName at a separately
+# managed one. Both required — the chart fails to render if either is unset.
 databaseSecretName: ""
 sessionSecretName: ""
 secretKeys:

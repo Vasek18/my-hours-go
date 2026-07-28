@@ -14,7 +14,6 @@ backend:
     appEnv: production
     appUrl: ""
     redisAddr: redis:6379
-  existingSecret: ""
   databaseSecretName: ""
   sessionSecretName: ""
   secretKeys:
