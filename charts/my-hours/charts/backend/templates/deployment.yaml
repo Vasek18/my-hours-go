@@ -1,5 +1,10 @@
-{{- if not .Values.existingSecret }}
-{{- fail "backend.existingSecret must be set to the name of a Secret containing DATABASE_URL and SESSION_SECRET keys" }}
+{{- $databaseSecretName := .Values.databaseSecretName | default .Values.existingSecret }}
+{{- $sessionSecretName := .Values.sessionSecretName | default .Values.existingSecret }}
+{{- if not $databaseSecretName }}
+{{- fail "backend.existingSecret or backend.databaseSecretName must be set to the name of a Secret containing the DATABASE_URL key" }}
+{{- end }}
+{{- if not $sessionSecretName }}
+{{- fail "backend.existingSecret or backend.sessionSecretName must be set to the name of a Secret containing the SESSION_SECRET key" }}
 {{- end }}
 {{- if not .Values.env.appUrl }}
 {{- fail "backend.env.appUrl must be set to your real public URL" }}
@@ -47,12 +52,12 @@ spec:
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.databaseSecretName | default .Values.existingSecret }}
+                  name: {{ $databaseSecretName }}
                   key: {{ .Values.secretKeys.databaseUrl }}
             - name: SESSION_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.sessionSecretName | default .Values.existingSecret }}
+                  name: {{ $sessionSecretName }}
                   key: {{ .Values.secretKeys.sessionSecret }}
           startupProbe:
             httpGet:

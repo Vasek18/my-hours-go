@@ -110,11 +110,18 @@ jobs:
 
       - name: Bump Chart.yaml version/appVersion
         id: bump
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          VERSION="${{ steps.version.outputs.version }}"
           FILES="charts/my-hours/Chart.yaml charts/my-hours/charts/backend/Chart.yaml charts/my-hours/charts/frontend/Chart.yaml"
+          # version: must be valid SemVer (no "v" prefix) for Helm's own tooling.
           sed -i "s/^version: .*/version: ${VERSION}/" $FILES
-          sed -i "s/^appVersion: .*/appVersion: \"${VERSION}\"/" $FILES
+          # appVersion: has no such constraint and should match the actual
+          # pushed image tags (ghcr.io/.../my-hours-{backend,frontend}:${RELEASE_TAG}),
+          # which keep the release's "v" prefix — so the chart's default
+          # image.tag fallback (.Chart.AppVersion) resolves to a real tag.
+          sed -i "s/^appVersion: .*/appVersion: \"${RELEASE_TAG}\"/" $FILES
 
           git add $FILES
           if git diff --cached --quiet; then
