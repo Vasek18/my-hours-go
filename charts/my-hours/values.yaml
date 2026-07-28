@@ -15,10 +15,8 @@ backend:
     appUrl: ""
     redisAddr: redis:6379
   databaseSecretName: ""
+  databaseSecretKey: DATABASE_URL
   sessionSecretName: ""
-  secretKeys:
-    databaseUrl: DATABASE_URL
-    sessionSecret: SESSION_SECRET
   resources:
     requests:
       cpu: 50m

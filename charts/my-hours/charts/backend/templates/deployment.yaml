@@ -51,12 +51,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.databaseSecretName }}
-                  key: {{ .Values.secretKeys.databaseUrl }}
+                  key: {{ .Values.databaseSecretKey }}
             - name: SESSION_SECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.sessionSecretName }}
-                  key: {{ .Values.secretKeys.sessionSecret }}
+                  key: SESSION_SECRET
           startupProbe:
             httpGet:
               path: /api/health
