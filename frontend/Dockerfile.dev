@@ -1,5 +1,5 @@
 # Development image: Vite dev server with HMR. Source is bind-mounted by compose.
-FROM node:24.14.1-alpine
+FROM node:24.20.0-alpine
 
 WORKDIR /app
 
