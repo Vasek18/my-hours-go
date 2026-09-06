@@ -1,5 +1,5 @@
 # Production image: build the SPA, serve it with nginx, proxy /api to the API.
-FROM node:24.14.1-alpine AS build
+FROM node:24.20.0-alpine AS build
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 RUN pnpm build
 
-FROM nginx:1.27-alpine
+FROM nginx:1.31-alpine
 
 # nginx processes templates in /etc/nginx/templates with envsubst at startup,
 # substituting only the env vars below (its own $variables are left untouched).
