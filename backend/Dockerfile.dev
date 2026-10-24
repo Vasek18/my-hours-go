@@ -1,5 +1,5 @@
 # Development image: hot reload via air. Source is bind-mounted by docker-compose.
-FROM golang:1.25.11-alpine3.22
+FROM golang:1.26.4-alpine3.22
 
 WORKDIR /app
 
