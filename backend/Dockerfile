@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---- Build stage ---------------------------------------------------------
-FROM golang:1.25.11-alpine3.22 AS build
+FROM golang:1.26.4-alpine3.22 AS build
 ARG APP_VERSION="0.0.0"
 ARG TARGETOS
 ARG TARGETARCH
